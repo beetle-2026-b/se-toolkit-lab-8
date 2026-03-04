@@ -16,9 +16,11 @@ Don't duplicate content across convention files. If a rule already exists in one
 
 ## Hyperlinks when mentioning sections
 
-When mentioning a section by name, always link to it.
+When mentioning a section by name, always link to it. For sections in another file, include the file path in the link.
 
 Good: `See [Section name](#section-name).`
+
+Good (cross-file): `See [Section name](other-file.md#section-name).`
 
 Bad: `See the Section name section.`
 
@@ -26,8 +28,12 @@ Bad: `See the Section name section.`
 
 ## Section link text
 
-Don't include the section number in the link text. Use only the section name.
+Don't include the section number in the link text when linking inline. Use only the section name.
 
-Good: `[Section name](#323-section-name)`
+In a table of contents, you may include the section number in the link text.
 
-Bad: `[3.2.3. Section name](#323-section-name)`
+Good (inline): `[Section name](#323-section-name)`
+
+Good (TOC): `[3.2.3. Section name](#323-section-name)`
+
+Bad (inline): `[3.2.3. Section name](#323-section-name)`
