@@ -104,13 +104,13 @@
 
 1. [Fork the course instructors' repo](../../wiki/github.md#fork-a-repo).
 
-   The course instructors' repo [URL](../../wiki/computer-networks.md#url) is <https://github.com/inno-se-toolkit/se-toolkit-lab-5>.
+   The course instructors' repo [URL](../../wiki/computer-networks.md#url) is <https://github.com/inno-se-toolkit/se-toolkit-lab-6>.
 
 #### 1.3.3. (UPD) Go to your fork
 
 1. [Go to your fork](../../wiki/github.md#go-to-your-fork).
 
-   The [URL](../../wiki/computer-networks.md#url) of your fork should look like `https://github.com/<your-github-username>/se-toolkit-lab-5`.
+   The [URL](../../wiki/computer-networks.md#url) of your fork should look like `https://github.com/<your-github-username>/se-toolkit-lab-6`.
 
 #### 1.3.4. (UPD) Enable issues
 
@@ -182,7 +182,7 @@
 1. [Go to your fork](#133-upd-go-to-your-fork).
 2. Copy [`<your-fork-url>`](../../wiki/github.md#your-fork-url).
 
-   It should look like `https://github.com/<your-github-username>/se-toolkit-lab-5`.
+   It should look like `https://github.com/<your-github-username>/se-toolkit-lab-6`.
 
    See [`<your-github-username>`](../../wiki/github.md#your-github-username).
 
