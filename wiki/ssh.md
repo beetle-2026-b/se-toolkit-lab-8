@@ -3,6 +3,7 @@
 <h2>Table of contents</h2>
 
 - [What is `SSH`](#what-is-ssh)
+- [`SSH` authentication methods](#ssh-authentication-methods)
 - [`SSH` key pair](#ssh-key-pair)
   - [`SSH` public key](#ssh-public-key)
   - [`SSH` private key](#ssh-private-key)
@@ -22,6 +23,11 @@ You can use it to connect to [your virtual machine](./vm.md#your-vm).
 > [!IMPORTANT]
 > **Windows users:** Use [`WSL`](./operating-system.md#wsl) (Windows Subsystem for Linux).
 > Do not use `PowerShell`, `cmd.exe`, or `Git Bash` — the commands below are not guaranteed to work there.
+
+## `SSH` authentication methods
+
+- using a password
+- using an [`SSH` key](#ssh-key-pair)
 
 ## `SSH` key pair
 
