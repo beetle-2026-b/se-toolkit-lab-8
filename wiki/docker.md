@@ -23,7 +23,7 @@
   - [Add the user `<user>` to the group `docker` (REMOTE)](#add-the-user-user-to-the-group-docker-remote)
 - [Configure `Docker` DNS](#configure-docker-dns)
 - [Remove `Docker` containers](#remove-docker-containers)
-  - [Remove all containers](#remove-all-containers)
+  - [Clean up `Docker`](#clean-up-docker)
   - [Remove the container running at the port](#remove-the-container-running-at-the-port)
 - [Troubleshooting](#troubleshooting)
   - [Image pull fails](#image-pull-fails)
@@ -231,10 +231,10 @@ Complete these steps
 
 ## Remove `Docker` containers
 
-- Method 1: [Remove all containers](#remove-all-containers)
+- Method 1: [Clean up `Docker`](#clean-up-docker)
 - Method 2: [Remove the container running at the port](#remove-the-container-running-at-the-port)
 
-### Remove all containers
+### Clean up `Docker`
 
 > [!NOTE]
 > See [`<user>`](./operating-system.md#user-placeholder).
