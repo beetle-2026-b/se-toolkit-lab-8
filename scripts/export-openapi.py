@@ -19,8 +19,17 @@ from app.main import app
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--check", action="store_true", help="Check that the file is up to date instead of writing it")
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="Output file path (default: %(default)s)")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Check that the file is up to date instead of writing it",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_OUTPUT,
+        help="Output file path (default: %(default)s)",
+    )
     args = parser.parse_args()
 
     schema = app.openapi()
@@ -34,7 +43,10 @@ def main() -> None:
         old_content = args.output.read_text()
         if old_content != new_content:
             print(f"ERROR: {args.output} is out of date.", file=sys.stderr)
-            print("Run `uv run poe export-openapi` and commit the result.", file=sys.stderr)
+            print(
+                "Run `uv run poe export-openapi` and commit the result.",
+                file=sys.stderr,
+            )
             raise SystemExit(1)
         print("openapi.json is up to date.")
         return
