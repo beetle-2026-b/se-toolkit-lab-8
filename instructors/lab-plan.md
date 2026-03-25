@@ -209,6 +209,35 @@ They also test the multi-step scenario: trigger a failure, wait for the next cro
 
 ---
 
+### Task 4 — Diagnose and Fix a Bug Using the Agent
+
+**Purpose:**
+
+Everything students built in Tasks 1–3 is now the tool they use to solve a real problem.
+This task proves that observability and an AI agent aren't just infrastructure — they're how you debug a multi-service system when you can't attach a debugger.
+
+**Summary:**
+
+The instructor deploys a version of the backend with a planted bug (e.g., a model field mismatch that causes a specific endpoint to return 500 errors intermittently).
+Students are not told what the bug is or where it is — only that "users are reporting errors."
+
+Students ask the agent to investigate.
+The agent searches logs for recent errors, finds the affected endpoint and error message, pulls the trace to show which service and span failed, and reports its findings.
+
+Based on the agent's report, students locate the buggy code, fix it, redeploy, and verify the fix by asking the agent again — this time the agent should report no errors.
+
+Students document the investigation: the questions they asked, the agent's responses, the root cause, and the fix.
+
+**Acceptance criteria:**
+
+- The student uses the agent to identify the affected endpoint and error type without prior knowledge of the bug.
+- The agent's investigation chains log and trace tools to pinpoint the failure.
+- The student fixes the bug in the code and redeploys.
+- After the fix, the agent confirms no errors when asked.
+- The student documents the investigation steps, root cause, and fix.
+
+---
+
 ## Optional task
 
 ### Task 1 — Set Up Error Alerting
