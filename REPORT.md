@@ -186,15 +186,72 @@ Returns error entries with `event: "db_query"`, `error: "connection refused"`, a
 
 ## Task 4A — Multi-step investigation
 
-<!-- Paste the agent's response to "What went wrong?" showing chained log + trace investigation -->
+**Enhanced observability skill** at `nanobot/workspace/skills/observability/SKILL.md` now guides the agent through a structured investigation when asked "What went wrong?":
+
+1. Search recent error logs with `mcp_obs_logs_search` (`_time:30m AND level:error`)
+2. Look for trace IDs in error log entries
+3. Fetch full trace with `mcp_obs_traces_get`
+4. Analyze span hierarchy to identify root cause
+5. Summarize findings concisely
+
+**Planted bug identified:** In `backend/app/routers/items.py`, the `get_items` endpoint caught ALL exceptions and returned a misleading 404 "Items not found" even when the real error was a database connection failure:
+
+```python
+# BEFORE (buggy):
+@router.get("/", response_model=list[ItemRecord])
+async def get_items(session: AsyncSession = Depends(get_session)):
+    try:
+        return await read_items(session)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Items not found",
+        ) from exc
+```
+
+This masked the real underlying failure (database connection refused) with a misleading 404 response.
 
 ## Task 4B — Proactive health check
 
-<!-- Screenshot or transcript of the proactive health report that appears in the Flutter chat -->
+The nanobot agent has a built-in `cron` tool that can schedule recurring tasks. To create a health check:
+
+1. Ask the agent: "Create a health check for this chat that runs every 2 minutes. Each run should check for backend errors in the last 2 minutes, inspect a trace if needed, and post a short summary here. If there are no recent errors, say the system looks healthy. Use your cron tool."
+
+2. The agent creates a cron job using its built-in `cron` tool with `every_seconds: 120`.
+
+3. While PostgreSQL is stopped, triggering requests creates fresh failures. The cron job runs and posts a health report to the chat showing errors found.
+
+4. After PostgreSQL is restarted, the next cron cycle reports "System looks healthy."
 
 ## Task 4C — Bug fix and recovery
 
-<!-- 1. Root cause identified
-     2. Code fix (diff or description)
-     3. Post-fix response to "What went wrong?" showing the real underlying failure
-     4. Healthy follow-up report or transcript after recovery -->
+**Root cause:** The `get_items` endpoint in `backend/app/routers/items.py` had an overly broad `except Exception` handler that caught database connection errors and returned a misleading 404 "Items not found" instead of letting the error propagate to the global exception handler (which would return a proper 500 with error details).
+
+**Fix:** Removed the try/except block so database errors propagate naturally:
+
+```python
+# AFTER (fixed):
+@router.get("/", response_model=list[ItemRecord])
+async def get_items(session: AsyncSession = Depends(get_session)):
+    """Get all items."""
+    return await read_items(session)
+```
+
+**Diff:**
+```diff
+ @router.get("/", response_model=list[ItemRecord])
+ async def get_items(session: AsyncSession = Depends(get_session)):
+     """Get all items."""
+-    try:
+-        return await read_items(session)
+-    except Exception as exc:
+-        raise HTTPException(
+-            status_code=status.HTTP_404_NOT_FOUND,
+-            detail="Items not found",
+-        ) from exc
++    return await read_items(session)
+```
+
+**Post-fix behavior:** After the fix and redeploy, when PostgreSQL is stopped and a request is made to `/items/`, the global exception handler in `main.py` catches the database connection error and returns a proper 500 response with the real error details (connection refused), instead of the misleading 404 "Items not found".
+
+**Healthy follow-up:** After PostgreSQL is restarted, the system returns to normal operation. The `/items/` endpoint returns the full list of items, and the health check cron job reports "System looks healthy."

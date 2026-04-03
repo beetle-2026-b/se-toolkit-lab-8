@@ -15,11 +15,36 @@ You have access to observability tools that query VictoriaLogs (structured logs)
   - `_stream:{service="backend"} AND level:error` — backend errors only
   - `_time:1h AND level:error` — errors in the last hour
   - `event:db_query AND level:error` — database query errors
+  - `event:unhandled_exception` — unhandled exceptions
 - **`mcp_obs_logs_error_count`** — Count errors per service over a time window. Returns a summary of error counts.
 
 ### Trace tools (VictoriaTraces)
 - **`mcp_obs_traces_list`** — List recent traces for a service. Shows trace IDs, durations, and status.
 - **`mcp_obs_traces_get`** — Fetch a specific trace by ID. Shows the full span hierarchy with timing.
+
+## Investigation Workflow: "What went wrong?"
+
+When the user asks **"What went wrong?"** or **"Check system health"**, follow this exact sequence:
+
+1. **Search recent error logs first:**
+   - Call `mcp_obs_logs_search` with query `_time:30m AND level:error`
+   - If no results, try `_time:1h AND level:error`
+   - Summarize what you find: which services have errors, what error messages appear
+
+2. **Look for trace IDs in the error logs:**
+   - If error log entries contain `otelTraceID` or `trace_id`, note them
+   - Call `mcp_obs_traces_get` with the trace ID to fetch the full trace
+
+3. **Analyze the trace:**
+   - Look at the span hierarchy — which span has the error?
+   - Check the error message in the failing span
+   - Identify the root cause (e.g., database connection refused, timeout, etc.)
+
+4. **Summarize findings concisely:**
+   - What failed (service, endpoint)
+   - Why it failed (error message from logs/traces)
+   - When it started (timestamp from first error)
+   - Don't dump raw JSON — present key findings in readable format
 
 ## Rules
 
@@ -36,8 +61,14 @@ User: "Any errors in the last hour?"
 1. Call `mcp_obs_logs_search` with query `_time:1h AND level:error`
 2. Summarize any errors found, or report "No errors found in the last hour."
 
-User: "What went wrong with the last request?"
-1. Call `mcp_obs_logs_search` with query `level:error` and a recent time range
-2. If a trace ID appears in the logs, call `mcp_obs_traces_get` with that ID
-3. Analyze the trace spans to identify where the failure occurred
-4. Report the root cause concisely
+User: "What went wrong?"
+1. Call `mcp_obs_logs_search` with query `_time:30m AND level:error`
+2. If errors found, look for trace IDs in the results
+3. Call `mcp_obs_traces_get` with any trace ID found
+4. Analyze the trace spans to identify where the failure occurred
+5. Report: "I found X errors in the last 30 minutes. The root cause is [error message] in [service]. The failure started at [timestamp]."
+
+User: "Check system health"
+1. Call `mcp_obs_logs_error_count` with time_range "1h"
+2. If errors found, investigate further with `mcp_obs_logs_search`
+3. Report summary: "System health: [healthy/degraded/down]. [N] errors in the last hour from [services]."
