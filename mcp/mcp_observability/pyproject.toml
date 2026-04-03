@@ -1,0 +1,17 @@
+[project]
+name = "mcp-observability"
+version = "1.0.0"
+description = "MCP server for VictoriaLogs and VictoriaTraces observability tools"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.28.0,<1.0.0",
+    "mcp>=1.26.0,<2.0.0",
+    "pydantic>=2.12.0,<3.0.0",
+]
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["mcp_observability*"]

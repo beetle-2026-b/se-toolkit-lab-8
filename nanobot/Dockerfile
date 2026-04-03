@@ -38,6 +38,9 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Install mcp_lms package (for MCP server subprocess)
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install /app/mcp
+# Install mcp_observability package
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install /app/mcp/mcp_observability
 # Install webchat packages with entry points
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install /app/nanobot-websocket-channel/nanobot-channel-protocol /app/nanobot-websocket-channel/nanobot-webchat

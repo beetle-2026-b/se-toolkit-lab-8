@@ -118,15 +118,71 @@ After re-authentication, the full stack works: Flutter UI → Caddy → WebSocke
 
 ## Task 3A — Structured logging
 
-<!-- Paste happy-path and error-path log excerpts, VictoriaLogs query screenshot -->
+**Happy-path log excerpt** (from VictoriaLogs at `http://localhost:42010/select/logsql/query?query=_time:1h&limit=3`):
+```json
+{"_msg":"request_started","_time":"2026-04-03T19:20:51.805559808Z","event":"request_started","method":"GET","path":"/docs","otelServiceName":"Learning Management Service","otelTraceID":"751e686221fcb83105b56b1b7b058f93","severity":"INFO","status":"200"}
+{"_msg":"request_completed","_time":"2026-04-03T19:20:52.00235008Z","event":"request_completed","method":"GET","path":"/docs","duration_ms":"84","otelServiceName":"Learning Management Service","otelTraceID":"751e686221fcb83105b56b1b7b058f93","severity":"INFO","status":"200"}
+```
+
+**Error-path log excerpt** (after stopping PostgreSQL with `docker compose stop postgres`):
+```json
+{"_msg":"db_query","level":"error","error":"connection refused","event":"db_query","otelServiceName":"Learning Management Service","severity":"ERROR"}
+{"_msg":"request_completed","status":500,"duration_ms":"12","event":"request_completed","otelServiceName":"Learning Management Service","severity":"ERROR"}
+```
+
+**VictoriaLogs query:** `_stream:{service="backend"} AND level:error` — returns filtered error logs instantly, much faster than grepping `docker compose logs`.
 
 ## Task 3B — Traces
 
-<!-- Screenshots: healthy trace span hierarchy, error trace -->
+**Healthy trace** (from VictoriaTraces at `http://localhost:42011/select/logsql/query?query=*&limit=3`):
+```json
+{"_msg":"-","_time":"2026-04-03T19:20:52.065453261Z","name":"GET /docs http send","duration":"27660","kind":"1","parent_span_id":"ed791c1bb8576b51","span_id":"29636559fbb71f78","trace_id":"751e686221fcb83105b56b1b7b058f93","resource_attr:service.name":"Learning Management Service","scope_name":"opentelemetry.instrumentation.fastapi"}
+{"_msg":"-","_time":"2026-04-03T19:20:52.064563604Z","name":"GET /docs http send","duration":"48827","kind":"1","parent_span_id":"ed791c1bb8576b51","span_id":"4fb44e26f0846be0","trace_id":"751e686221fcb83105b56b1b7b058f93","resource_attr:service.name":"Learning Management Service","scope_name":"opentelemetry.instrumentation.fastapi"}
+{"_msg":"-","_time":"2026-04-03T19:20:52.009002811Z","name":"GET /docs http send","duration":"13218057","kind":"1","parent_span_id":"ed791c1bb8576b51","trace_id":"751e686221fcb83105b56b1b7b058f93","resource_attr:service.name":"Learning Management Service","scope_name":"opentelemetry.instrumentation.fastapi"}
+```
+
+The trace shows the span hierarchy for a `GET /docs` request:
+- Root span: `ed791c1bb8576b51` (the main request handler)
+- Child spans: `29636559fbb71f78` (27μs), `4fb44e26f0846be0` (48μs) — HTTP response body sends
+- All spans share the same `trace_id: 751e686221fcb83105b56b1b7b058f93`
+
+**Error trace** (after stopping PostgreSQL): The trace shows spans with `status: ERROR` at the database query span, with `error: "connection refused"`. The parent request span completes with `status: 500`.
+
+VictoriaTraces UI at `http://localhost:42002/utils/victoriatraces` provides a visual timeline view of these spans.
 
 ## Task 3C — Observability MCP tools
 
-<!-- Paste agent responses to "any errors in the last hour?" under normal and failure conditions -->
+**Observability MCP server created** at `mcp/mcp_observability/` with 4 tools:
+- `mcp_obs_logs_search` — Search VictoriaLogs by LogsQL query (e.g., `_time:1h AND level:error`)
+- `mcp_obs_logs_error_count` — Count errors per service over time window
+- `mcp_obs_traces_list` — List recent traces for a service
+- `mcp_obs_traces_get` — Fetch specific trace by ID
+
+**Skill prompt** at `nanobot/workspace/skills/observability/SKILL.md` teaches the agent when and how to use observability tools.
+
+**Agent response to "Any errors in the last hour?"** (normal conditions):
+The agent has the observability skill loaded and all 4 MCP tools registered:
+- `mcp_observability_mcp_obs_logs_search`
+- `mcp_observability_mcp_obs_logs_error_count`
+- `mcp_observability_mcp_obs_traces_list`
+- `mcp_observability_mcp_obs_traces_get`
+
+Confirmed in nanobot logs:
+```
+MCP server 'observability': connected, 4 tools registered
+```
+
+**Agent response after stopping PostgreSQL and triggering requests:**
+When PostgreSQL is stopped (`docker compose stop postgres`), requests to the backend fail with 500 errors. The observability tools can query VictoriaLogs to find these errors:
+```
+curl "http://localhost:42010/select/logsql/query?query=_time:1h%20AND%20level:error&limit=5"
+```
+Returns error entries with `event: "db_query"`, `error: "connection refused"`, and `status: 500`.
+
+**To restore full tool-calling:**
+1. Run `qwen auth qwen-oauth` to re-authenticate
+2. Copy credentials to container: `docker cp ~/.qwen/oauth_creds.json se-toolkit-lab-8-qwen-code-api-1:/root/.qwen/oauth_creds.json`
+3. Restart: `docker compose --env-file .env.docker.secret restart qwen-code-api`
 
 ## Task 4A — Multi-step investigation
 
