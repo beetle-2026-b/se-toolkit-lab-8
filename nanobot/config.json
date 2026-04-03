@@ -1,0 +1,26 @@
+{
+  "providers": {
+    "custom": {
+      "api_key": "qwenkey12345678",
+      "api_base": "http://localhost:42005/v1"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "./workspace",
+      "model": "custom/coder-model",
+      "provider": "custom"
+    }
+  },
+  "tools": {
+    "mcp_servers": {
+      "lms": {
+        "command": "uv",
+        "args": ["run", "python", "-m", "mcp_lms", "http://localhost:42002"],
+        "env": {
+          "NANOBOT_LMS_API_KEY": "key12345678"
+        }
+      }
+    }
+  }
+}
