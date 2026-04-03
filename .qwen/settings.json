@@ -45,7 +45,13 @@
       "Bash(print)",
       "Bash(except *)",
       "Bash(eof)",
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "Bash(git submodule *)",
+      "Bash(docker *)",
+      "Bash(touch *)",
+      "Bash(cp *)",
+      "Bash(apt-get *)",
+      "Bash(pip install *)"
     ]
   },
   "$version": 3

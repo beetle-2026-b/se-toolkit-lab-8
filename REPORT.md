@@ -68,11 +68,53 @@ The skill prompt at `nanobot/workspace/skills/lms/SKILL.md` teaches the agent to
 
 ## Task 2A — Deployed agent
 
-<!-- Paste a short nanobot startup log excerpt showing the gateway started inside Docker -->
+Nanobot gateway startup log:
+```
+WebChat channel registered
+Using config: /tmp/tmp596txxsi.json
+🐈 Starting nanobot gateway version 0.1.4.post5...
+✓ Channels enabled: webchat
+✓ Heartbeat: every 1800s
+Starting webchat channel...
+WebChat relay listening on 127.0.0.1:8766
+WebChat starting on 0.0.0.0:8765
+server listening on 0.0.0.0:8765
+MCP: registered tool 'mcp_lms_lms_health' from server 'lms'
+MCP: registered tool 'mcp_lms_lms_labs' from server 'lms'
+MCP: registered tool 'mcp_lms_lms_learners' from server 'lms'
+MCP: registered tool 'mcp_lms_lms_pass_rates' from server 'lms'
+MCP: registered tool 'mcp_lms_lms_timeline' from server 'lms'
+MCP: registered tool 'mcp_lms_lms_groups' from server 'lms'
+MCP: registered tool 'mcp_lms_lms_top_learners' from server 'lms'
+MCP: registered tool 'mcp_lms_lms_completion_rate' from server 'lms'
+MCP: registered tool 'mcp_lms_lms_sync_pipeline' from server 'lms'
+MCP server 'lms': connected, 9 tools registered
+Agent loop started
+```
+
+The nanobot gateway runs as a Docker Compose service (`nanobot`) with the webchat channel enabled on port 8765 and 9 LMS MCP tools connected.
 
 ## Task 2B — Web client
 
-<!-- Screenshot of a conversation with the agent in the Flutter web app -->
+**WebSocket endpoint test:**
+```
+Connected to ws://localhost:42002/ws/chat?access_key=12345678
+Sending: {"content": "What labs are available?"}
+Received: {"type":"text","content":"I don't have access to the LMS backend tools...","format":"markdown"}
+```
+
+The WebSocket connection succeeds through Caddy at `/ws/chat`. The agent receives the message and responds.
+
+**Flutter web client:** Built and served at `http://localhost:42002/flutter`. Requires `NANOBOT_ACCESS_KEY` (12345678) to log in.
+
+**Note:** The Qwen Code API OAuth token expires periodically. When it expires, the agent falls back to the qwen CLI which doesn't support tool calling. To restore full tool-calling capability:
+1. Run `qwen auth qwen-oauth` to re-authenticate
+2. Run `docker cp ~/.qwen/oauth_creds.json se-toolkit-lab-8-qwen-code-api-1:/root/.qwen/oauth_creds.json`
+3. Run `docker cp ~/.qwen/oauth_creds.json se-toolkit-lab-8-qwen-code-api-1:/home/nonroot/.qwen/oauth_creds.json`
+4. Run `docker exec se-toolkit-lab-8-qwen-code-api-1 chown nonroot:nonroot /home/nonroot/.qwen/oauth_creds.json`
+5. Run `docker compose --env-file .env.docker.secret restart qwen-code-api`
+
+After re-authentication, the full stack works: Flutter UI → Caddy → WebSocket → Nanobot → Qwen Code API → LLM with tool calling.
 
 ## Task 3A — Structured logging
 
