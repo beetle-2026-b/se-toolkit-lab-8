@@ -1,13 +1,18 @@
 [project]
 name = "nanobot"
 version = "0.1.0"
-description = "Add your description here"
+description = "Nanobot agent for LMS — Docker deployable"
 readme = "README.md"
-requires-python = "==3.14.2"
+requires-python = ">=3.14,<3.15"
 dependencies = [
     "lms-mcp",
     "nanobot-ai>=0.1.4.post6",
+    "nanobot-channel-protocol",
+    "nanobot-webchat",
 ]
 
 [tool.uv.sources]
-lms-mcp = { workspace = true, editable = true }
+lms-mcp = { path = "../mcp", editable = true }
+nanobot-channel-protocol = { path = "../nanobot-websocket-channel/nanobot-channel-protocol", editable = true }
+nanobot-webchat = { path = "../nanobot-websocket-channel/nanobot-webchat", editable = true }
+nanobot-ai = { url = "https://github.com/HKUDS/nanobot/archive/e7d371ec1e6531b28898ec2c869ef338e8dd46ec.zip" }

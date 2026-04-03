@@ -2,7 +2,7 @@
   "providers": {
     "custom": {
       "api_key": "qwenkey12345678",
-      "api_base": "http://localhost:42005/v1"
+      "api_base": "http://172.17.0.1:42005/v1"
     }
   },
   "agents": {
@@ -12,11 +12,17 @@
       "provider": "custom"
     }
   },
+  "channels": {
+    "webchat": {
+      "enabled": true,
+      "allow_from": ["*"]
+    }
+  },
   "tools": {
     "mcp_servers": {
       "lms": {
-        "command": "uv",
-        "args": ["run", "python", "-m", "mcp_lms", "http://localhost:42002"],
+        "command": "python",
+        "args": ["-m", "mcp_lms", "http://localhost:42002"],
         "env": {
           "NANOBOT_LMS_API_KEY": "key12345678"
         }
