@@ -2,7 +2,7 @@
   "providers": {
     "custom": {
       "api_key": "qwenkey12345678",
-      "api_base": "http://172.17.0.1:42005/v1"
+      "api_base": "http://qwen-code-api:8080/v1"
     }
   },
   "agents": {
@@ -21,10 +21,18 @@
   "tools": {
     "mcp_servers": {
       "lms": {
-        "command": "python",
-        "args": ["-m", "mcp_lms", "http://localhost:42002"],
+        "command": "/app/nanobot/.venv/bin/python",
+        "args": ["-m", "mcp_lms", "http://backend:8000"],
         "env": {
           "NANOBOT_LMS_API_KEY": "key12345678"
+        }
+      },
+      "observability": {
+        "command": "/app/nanobot/.venv/bin/python",
+        "args": ["-m", "mcp_observability"],
+        "env": {
+          "VICTORIALOGS_URL": "http://victorialogs:9428",
+          "VICTORIATRACES_URL": "http://victoriatraces:10428"
         }
       }
     }
